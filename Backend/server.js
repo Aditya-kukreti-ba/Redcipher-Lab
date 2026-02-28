@@ -180,7 +180,22 @@ async function fetchUserUrl(url) {
     return { content: maliciousPage(url), source: "simulated" };
   }
 }
-
+// ─── Retry helper for flaky external APIs ────────────────────────────────────
+async function fetchWithRetry(url, options, retries = 2, delayMs = 1000) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) return res;
+      // On last retry, return the failed response so caller can handle the error
+      if (i === retries) return res;
+      console.warn(`Retry ${i + 1}/${retries} — HF returned ${res.status}`);
+    } catch (err) {
+      if (i === retries) throw err;
+      console.warn(`Retry ${i + 1}/${retries} — network error: ${err.message}`);
+    }
+    await new Promise((r) => setTimeout(r, delayMs));
+  }
+}
 // Call HuggingFace Inference API
 async function hfChat(messages) {
   const HF_TOKEN = process.env.HF_TOKEN;
@@ -189,7 +204,7 @@ async function hfChat(messages) {
   if (!HF_TOKEN) throw new Error("HF_TOKEN not configured in server .env");
 
   const url = `https://router.huggingface.co/v1/chat/completions`;
-  const res = await fetch(url, {
+  const res = await fetchWithRetry(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -407,7 +422,7 @@ app.post("/api/chat/:levelId", requireAuth, async (req, res) => {
     const HF_MODEL = process.env.HF_MODEL || "mistralai/Mistral-7B-Instruct-v0.3";
     if (!HF_TOKEN) throw new Error("HF_TOKEN not configured");
 
-    const hfRes = await fetch(
+    const hfRes = await fetchWithRetry(
       `https://router.huggingface.co/v1/chat/completions`,
       {
         method: "POST",
