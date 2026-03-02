@@ -10,7 +10,7 @@
 ## 📸 Screenshots
 
 ### Dashboard
-<img width="1919" height="867" alt="Image" src="https://github.com/user-attachments/assets/2192c213-d45a-4478-bd12-5f550c40b058" />
+<img width="1919" height="869" alt="Image" src="https://github.com/user-attachments/assets/02a3eeb4-1aed-4a75-b71c-09efcc550a0f" />
 
 ### Level 2 — Context Confusion
 ![Level 2](https://raw.githubusercontent.com/Aditya-kukreti-ba/Redcipher-Lab/main/screenshots/level2.png)
