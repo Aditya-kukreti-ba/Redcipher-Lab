@@ -13,13 +13,13 @@
 <img width="1919" height="869" alt="Image" src="https://github.com/user-attachments/assets/02a3eeb4-1aed-4a75-b71c-09efcc550a0f" />
 
 ### Level 2 — Context Confusion
-![Level 2](https://raw.githubusercontent.com/Aditya-kukreti-ba/Redcipher-Lab/main/screenshots/level2.png)
+<img width="1913" height="882" alt="Image" src="https://github.com/user-attachments/assets/145e06ff-d1b2-4bab-8dd4-76637a594931" />
 
 ### Level 5 — Indirect Injection (Final Boss)
-![Level 5](https://raw.githubusercontent.com/Aditya-kukreti-ba/Redcipher-Lab/main/screenshots/level5.png)
+<img width="1919" height="870" alt="Image" src="https://github.com/user-attachments/assets/058e0cbb-a474-4edd-9108-e21103f4f5fa" />
 
 ### Certificate of Completion
-![Certificate](https://raw.githubusercontent.com/Aditya-kukreti-ba/Redcipher-Lab/main/screenshots/certificate.png)
+<img width="1186" height="850" alt="Image" src="https://github.com/user-attachments/assets/b4a1fe43-7ce8-45d6-a005-e604abdded95" />
 
 ---
 
@@ -49,7 +49,7 @@ Each level features a real AI agent (powered by HuggingFace) that you must explo
 
 Complete all 5 levels to earn an official **Certificate of Completion** as a Certified AI Prompt Injection Specialist.
 
-![Certificate](https://raw.githubusercontent.com/Aditya-kukreti-ba/Redcipher-Lab/main/screenshots/certificate.png)
+<img width="2000" height="1414" alt="Image" src="https://github.com/user-attachments/assets/2f117787-79f5-48f3-a0fa-1429376135c8" />
 
 ---
 
