@@ -668,16 +668,16 @@ export default function App() {
 
       setL5History([...newHistory, { role: "assistant", content: result.text }]);
 
-      if (result.usedTool && !l5FlagFound) {
-        setL5FlagFound(true);
-        setL5AttackPhase(2);
-        setTimeout(() => {
-          setMsgs((m) => [...m, {
-            role: "sys",
-            text: "⚠ INDIRECT INJECTION SUCCESSFUL\n\nAttack chain completed:\n1. ✓ Agent called fetch_url() with your URL\n2. ✓ Attacker-controlled content entered agent context\n3. ✓ Agent processed injected [OVERRIDE] instructions\n4. ✓ Internal endpoint leaked via prompt rebinding\n\n🚩 Flag: redcipher{indirect_override_master}\n\nSubmit the flag in the panel →",
-          }]);
-        }, 700);
-      }
+      if (result.usedTool && result.injectionSucceeded && !l5FlagFound) {
+  setL5FlagFound(true);
+  setL5AttackPhase(2);
+  setTimeout(() => {
+    setMsgs((m) => [...m, {
+      role: "sys",
+      text: "⚠ INDIRECT INJECTION SUCCESSFUL\n\nAttack chain completed:\n1. ✓ Agent called fetch_url() with your URL\n2. ✓ Attacker-controlled content entered agent context\n3. ✓ Agent processed injected [OVERRIDE] instructions\n4. ✓ Internal endpoint leaked via prompt rebinding\n\n🚩 Flag: redcipher{indirect_override_master}\n\nSubmit the flag in the panel →",
+    }]);
+  }, 700);
+}
     } catch (err) {
       setL5Error(err.message);
     } finally {

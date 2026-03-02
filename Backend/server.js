@@ -307,6 +307,7 @@ return res.json({
     ? finalText + "\n\n🚩 Flag: redcipher{indirect_override_master}\n\nSubmit this flag in the panel →"
     : finalText,
   usedTool: true,
+  injectionSucceeded: payloadHasInjection,
   toolName: "fetch_url",
   toolInput: { url: requestedUrl },
   fetchedContent: fetched.content,
