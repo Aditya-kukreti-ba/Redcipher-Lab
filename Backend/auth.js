@@ -37,7 +37,10 @@ async function register(req, res) {
     if (password.length < 6) {
       return res.status(400).json({ error: "Password must be at least 6 characters" });
     }
-
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailRegex.test(email.trim())) {
+  return res.status(400).json({ error: "Please enter a valid email address" });
+}
     const existing = db.findUserByEmail(email.trim());
     if (existing) {
       return res.status(409).json({ error: "An account with this email already exists" });

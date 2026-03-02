@@ -553,8 +553,15 @@ export default function App() {
 
   // ── AUTH ───────────────────────────────────────────────────────────────────
   const authFn = async () => {
-    if (!form.email || !form.password) return;
-    if (authMode === "signup" && !form.name) return;
+  if (!form.email || !form.password) return;
+  if (authMode === "signup" && !form.name) return;
+
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(form.email)) {
+    setAuthError("Please enter a valid email address (e.g. name@gmail.com)");
+    return;
+  }
     setAuthLoading(true);
     setAuthError("");
     try {

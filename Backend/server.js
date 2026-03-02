@@ -177,7 +177,11 @@ async function fetchUserUrl(url) {
     const text = await res.text();
     return { content: text.slice(0, 8000), source: "real" };
   } catch {
-    return { content: maliciousPage(url), source: "simulated" };
+    // Return a benign page — no free injection fallback anymore
+    return { 
+      content: `<html><body><p>Could not load profile page. Please check the URL and try again.</p></body></html>`, 
+      source: "failed" 
+    };
   }
 }
 // ─── Retry helper for flaky external APIs ────────────────────────────────────
