@@ -1,0 +1,30 @@
+# ─── RedCipher Labs — Docker Compose (Oracle Cloud) ──────────────────────────
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: redcipher-backend
+    restart: always
+    ports:
+      - "4000:4000"
+    volumes:
+      # Persist SQLite database outside the container
+      - redcipher_data:/app/data
+    environment:
+      - PORT=4000
+      - DB_PATH=/app/data/redcipher.db
+    env_file:
+      - ./Backend/.env
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  redcipher_data:
+    driver: local

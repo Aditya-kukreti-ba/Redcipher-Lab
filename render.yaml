@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: redcipher-backend
+    runtime: node
+    rootDir: Backend
+    buildCommand: npm install
+    startCommand: node server.js
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: ./redcipher.db
+      - key: FRONTEND_URL
+        value: https://redcipher-lab.vercel.app
+      - key: HF_MODEL
+        value: meta-llama/Llama-3.1-8B-Instruct
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: redcipher-backend
+          property: host
+      - key: JWT_SECRET
+        sync: false
+      - key: HF_TOKEN
+        sync: false
