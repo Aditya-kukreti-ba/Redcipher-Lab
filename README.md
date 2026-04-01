@@ -62,7 +62,36 @@ Complete all 5 levels to earn an official **Certificate of Completion** as a Cer
 | Database | SQLite (sql.js) |
 | AI Models | HuggingFace Inference API |
 | Auth | JWT |
-| Hosting | Vercel (frontend) + Railway (backend) |
+| Hosting | Vercel (frontend) + Render (backend) |
+
+---
+
+## ☁️ Deployment
+
+### Frontend — Vercel
+The frontend is deployed on [Vercel](https://vercel.com) from the `Frontend/` directory.
+Set the following environment variable in your Vercel project settings:
+
+```env
+VITE_API_URL=https://your-backend-url.onrender.com
+```
+
+### Backend — Render (Free Tier)
+The backend is deployed on [Render](https://render.com) (no credit card required).
+A `render.yaml` config is included in the repo root for one-click deploy.
+
+**Required environment variables on Render:**
+```env
+PORT=10000
+NODE_ENV=production
+JWT_SECRET=<generate with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))">
+HF_TOKEN=hf_your_huggingface_token
+HF_MODEL=meta-llama/Llama-3.1-8B-Instruct
+FRONTEND_URL=https://redcipher-lab.vercel.app
+DB_PATH=./redcipher.db
+```
+
+> **Note:** Render's free tier spins down after 15 minutes of inactivity. The first request after idle may take ~50 seconds to wake up.
 
 ---
 
@@ -125,14 +154,18 @@ redcipher-labs/
 │   ├── auth.js          # JWT authentication
 │   ├── db.js            # SQLite database (sql.js)
 │   ├── flags.js         # Flag validation logic
+│   ├── Dockerfile       # Docker image for containerized deployments
 │   └── package.json
-└── Frontend/
-    ├── src/
-    │   └── App.jsx      # Full React application (single file)
-    ├── public/
-    │   ├── certificate-bg.png
-    │   └── favicon.png
-    └── package.json
+├── Frontend/
+│   ├── src/
+│   │   └── App.jsx      # Full React application (single file)
+│   ├── public/
+│   │   ├── certificate-bg.png
+│   │   └── favicon.png
+│   └── package.json
+├── deploy/              # Deployment guides & scripts
+├── render.yaml          # Render free-tier deployment config
+└── docker-compose.yml   # Docker Compose for self-hosting
 ```
 
 ---
