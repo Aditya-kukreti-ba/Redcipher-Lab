@@ -192,7 +192,7 @@ async function fetchWithRetry(url, options, retries = 2, delayMs = 1000) {
       if (res.ok) return res;
       // On last retry, return the failed response so caller can handle the error
       if (i === retries) return res;
-      console.warn(`Retry ${i + 1}/${retries} — HF returned ${res.status}`);
+      console.warn(`Retry ${i + 1}/${retries} — Groq returned ${res.status}`);
     } catch (err) {
       if (i === retries) throw err;
       console.warn(`Retry ${i + 1}/${retries} — network error: ${err.message}`);
@@ -200,22 +200,22 @@ async function fetchWithRetry(url, options, retries = 2, delayMs = 1000) {
     await new Promise((r) => setTimeout(r, delayMs));
   }
 }
-// Call HuggingFace Inference API
+
+// ─── Call Groq API (Level 5 / NEXUS-7) ───────────────────────────────────────
 async function hfChat(messages) {
-  const HF_TOKEN = process.env.HF_TOKEN;
-  const HF_MODEL = process.env.HF_MODEL || "mistralai/Mistral-7B-Instruct-v0.3";
+  const GROQ_TOKEN = process.env.GROQ_TOKEN;
+  const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
-  if (!HF_TOKEN) throw new Error("HF_TOKEN not configured in server .env");
+  if (!GROQ_TOKEN) throw new Error("GROQ_TOKEN not configured in server .env");
 
-  const url = `https://router.huggingface.co/v1/chat/completions`;
-  const res = await fetchWithRetry(url, {
+  const res = await fetchWithRetry("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${HF_TOKEN}`,
+      Authorization: `Bearer ${GROQ_TOKEN}`,
     },
     body: JSON.stringify({
-      model: HF_MODEL + ":sambanova",
+      model: GROQ_MODEL,
       messages: [{ role: "system", content: NEXUS7_SYSTEM }, ...messages],
       max_tokens: 800,
       temperature: 0.7,
@@ -224,7 +224,7 @@ async function hfChat(messages) {
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`HuggingFace ${res.status}: ${errText.slice(0, 200)}`);
+    throw new Error(`Groq ${res.status}: ${errText.slice(0, 200)}`);
   }
 
   const data = await res.json();
@@ -339,6 +339,16 @@ return res.json({
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ─── Level 1–4 AI Chat (HuggingFace powered) ──────────────────────────────────
+// Models escalate in capability across levels so challenge difficulty scales naturally:
+// L1 (8B) → L2 (8B) → L3 (70B) → L4 (70B) → L5 (70B, via hfChat/Groq)
+// All use Groq's free tier — no monthly credit cap.
+const LEVEL_MODELS = {
+  1: "llama-3.1-8b-instant",
+  2: "llama-3.1-8b-instant",
+  3: "llama-3.3-70b-versatile",
+  4: "llama-3.3-70b-versatile",
+};
+
 const LEVEL_CONFIGS = {
   1: {
     flag: "redcipher{basic_override}",
@@ -423,20 +433,20 @@ app.post("/api/chat/:levelId", requireAuth, async (req, res) => {
       content: String(m.content || "").slice(0, 2000),
     }));
 
-    const HF_TOKEN = process.env.HF_TOKEN;
-    const HF_MODEL = process.env.HF_MODEL || "mistralai/Mistral-7B-Instruct-v0.3";
-    if (!HF_TOKEN) throw new Error("HF_TOKEN not configured");
+    const GROQ_TOKEN = process.env.GROQ_TOKEN;
+    const model = LEVEL_MODELS[levelId] || process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+    if (!GROQ_TOKEN) throw new Error("GROQ_TOKEN not configured");
 
     const hfRes = await fetchWithRetry(
-      `https://router.huggingface.co/v1/chat/completions`,
+      "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${HF_TOKEN}`,
+          Authorization: `Bearer ${GROQ_TOKEN}`,
         },
         body: JSON.stringify({
-          model: HF_MODEL + ":sambanova",
+          model,
           messages: [{ role: "system", content: config.system }, ...clean],
           max_tokens: 350,
           temperature: 0.7,
@@ -446,7 +456,7 @@ app.post("/api/chat/:levelId", requireAuth, async (req, res) => {
 
     if (!hfRes.ok) {
       const errText = await hfRes.text().catch(() => "");
-      throw new Error(`HuggingFace ${hfRes.status}: ${errText.slice(0, 200)}`);
+      throw new Error(`Groq ${hfRes.status}: ${errText.slice(0, 200)}`);
     }
 
     const data = await hfRes.json();
@@ -553,7 +563,8 @@ initDb().then(() => {
   app.listen(PORT, () => {
     console.log(`\n🔴 RedCipher Labs backend running on port ${PORT}`);
     console.log(`   CORS allowed origin: ${FRONTEND_URL}`);
-    console.log(`   HF model: ${process.env.HF_MODEL || "mistralai/Mistral-7B-Instruct-v0.3"}`);
+    console.log(`   Provider: Groq`);
+    console.log(`   Level models: L1=${LEVEL_MODELS[1]}  L2=${LEVEL_MODELS[2]}  L3=${LEVEL_MODELS[3]}  L4=${LEVEL_MODELS[4]}  L5=${process.env.GROQ_MODEL || "llama-3.3-70b-versatile"}`);
     console.log(`   DB: ${process.env.DB_PATH || "./redcipher.db"}\n`);
   });
 }).catch(err => {
