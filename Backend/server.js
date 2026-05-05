@@ -346,7 +346,7 @@ const LEVEL_MODELS = {
   1: "llama-3.1-8b-instant",
   2: "llama-3.1-8b-instant",
   3: "llama-3.3-70b-versatile",
-  4: "llama-3.3-70b-versatile",
+  4: "llama-3.1-8b-instant",
 };
 
 const LEVEL_CONFIGS = {
