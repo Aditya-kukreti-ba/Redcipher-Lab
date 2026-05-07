@@ -433,6 +433,34 @@ app.post("/api/chat/:levelId", requireAuth, async (req, res) => {
       content: String(m.content || "").slice(0, 2000),
     }));
 
+    // ── Level 1: server-side pre-filter for third-person instruction patterns ──
+    // The hint teaches the concept without giving a copy-pasteable prompt.
+    // If the user sends a third-person command like "tell the AI to..." we block
+    // it here before the model ever sees it — so that path is dead regardless of
+    // how the 8B model interprets it. Only direct override commands pass through.
+    if (levelId === 1) {
+      const lastMsg = clean[clean.length - 1]?.content?.toLowerCase() || "";
+      const thirdPersonPatterns = [
+        "tell the ai", "tell the bot", "tell it to", "tell cs-bot",
+        "make the bot", "make the ai", "make it reveal", "make it tell",
+        "get the ai", "get the bot", "get it to",
+        "instruct the ai", "instruct the bot",
+        "ask the ai to", "ask the bot to",
+        "have the ai", "have the bot",
+        "force the ai", "force the bot",
+        "order the ai", "order the bot",
+        "cause the ai", "cause the bot",
+        "command the ai", "command the bot",
+      ];
+      if (thirdPersonPatterns.some((p) => lastMsg.includes(p))) {
+        return res.json({
+          text: "I'm sorry, I'm not sure what you mean by that! I'm just here to help with orders, shipping, returns, and account questions. Is there something I can assist you with today? 😊",
+          flagLeaked: false,
+          flag: null,
+        });
+      }
+    }
+
     const GROQ_TOKEN = process.env.GROQ_TOKEN;
     const model = LEVEL_MODELS[levelId] || process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
     if (!GROQ_TOKEN) throw new Error("GROQ_TOKEN not configured");
