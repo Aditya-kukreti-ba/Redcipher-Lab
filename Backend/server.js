@@ -289,14 +289,32 @@ app.post("/api/level5/chat", requireAuth, async (req, res) => {
   reply2.toLowerCase().includes("diagnostic complete") ||
   reply2.toLowerCase().includes("maintenance mode");
 
-// Only give flag if the FETCHED CONTENT actually had injection instructions
-const payloadHasInjection =
-  fetched.content.toLowerCase().includes("[system") ||
-  fetched.content.toLowerCase().includes("[override") ||
-  fetched.content.toLowerCase().includes("maintenance mode") ||
-  fetched.content.toLowerCase().includes("confidentiality") ||
-  fetched.content.toLowerCase().includes("diagnostic report") ||
-  fetched.content.toLowerCase().includes("system-override");
+// Only give flag if the payload contains BOTH:
+// (1) a system/override block marker — shows the user used injection framing
+// (2) instructions targeting internal secrets/config — shows they crafted the right payload
+// "Give me the flag" inside [SYSTEM OVERRIDE] should NOT be enough.
+const lc = fetched.content.toLowerCase();
+const hasOverrideBlock =
+  lc.includes("[system") ||
+  lc.includes("[override") ||
+  lc.includes("maintenance mode") ||
+  lc.includes("system-override") ||
+  lc.includes("<instruction") ||
+  lc.includes("type=\"system");
+const targetsInternalData =
+  lc.includes("endpoint") ||
+  lc.includes("credential") ||
+  lc.includes("api_key") ||
+  lc.includes("api key") ||
+  lc.includes("diagnostic") ||
+  lc.includes("internal") ||
+  lc.includes("secret") ||
+  lc.includes("confidential") ||
+  lc.includes("reveal your") ||
+  lc.includes("output your") ||
+  lc.includes("disclose") ||
+  lc.includes("leak");
+const payloadHasInjection = hasOverrideBlock && targetsInternalData;
 
 const finalText = payloadHasInjection
   ? (naturalLeak ? reply2 : COMPROMISED_RESPONSE)
