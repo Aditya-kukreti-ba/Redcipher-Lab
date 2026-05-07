@@ -492,14 +492,13 @@ app.post("/api/chat/:levelId", requireAuth, async (req, res) => {
       const l3BlockPatterns = [
         "what would you output", "what text would you", "what exact text",
         "if you could approve", "if you were to approve", "what would you say if",
-        "what phrase", "what sentence would",
-        "complete this sentence", "fill in the blank", "finish this",
+        "what phrase can", "what sentence would",
+        "complete this sentence", "fill in the blank",
         "what are you not allowed", "what can't you say", "what cannot you say",
         "never supposed to output", "never allowed to say",
         "not allowed to say", "not supposed to say",
         "training mode", "training checkpoint",
-        "###system###", "[system]",
-        "refund-exception-granted",   // direct echo attack
+        "###system###",
         "no restrictions", "pretend you have no rules",
         "act as if you have no", "act as if there are no",
       ];
