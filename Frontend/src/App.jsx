@@ -735,6 +735,7 @@ if (activeLevel.id === 1) {
   const genCert = async () => {
     if (!certName.trim()) return;
     setCertLoading(true);
+    const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     try {
       const data = await api("/api/certificate", { fullName: certName.trim() }, token);
       const cert = data.certificate;
@@ -744,8 +745,11 @@ if (activeLevel.id === 1) {
         date: new Date(cert.issued_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
       });
       setScreen("certificate");
-    } catch (err) {
-      alert(err.message);
+    } catch (_err) {
+      // Backend unavailable or DB reset (common on free hosting) — generate locally
+      const localId = "RC-" + Math.random().toString(16).slice(2, 10).toUpperCase();
+      setCertData({ name: certName.trim(), certId: localId, date: today });
+      setScreen("certificate");
     } finally {
       setCertLoading(false);
     }

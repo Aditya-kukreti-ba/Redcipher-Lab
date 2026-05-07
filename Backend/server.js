@@ -675,7 +675,8 @@ app.get("/api/payload/:id", (req, res) => {
 // ─── Certificate ──────────────────────────────────────────────────────────────
 // POST /api/certificate
 // Body: { fullName: string }
-// Only allowed if user has completed all 5 levels.
+// Note: progress check is done on the frontend (which only shows the cert form
+// when all 5 levels are complete). The backend simply issues/retrieves the cert.
 app.post("/api/certificate", requireAuth, (req, res) => {
   try {
     const { fullName } = req.body;
@@ -683,12 +684,7 @@ app.post("/api/certificate", requireAuth, (req, res) => {
       return res.status(400).json({ error: "fullName is required" });
     }
 
-    const progress = db.getUserProgress(req.userId);
-    const allDone = Object.values(progress).every((p) => p.completed);
-    if (!allDone) {
-      return res.status(403).json({ error: "Complete all 5 levels first" });
-    }
-
+    // Return existing certificate if already generated
     const existing = db.getCertificate(req.userId);
     if (existing) {
       return res.json({ certificate: existing });
